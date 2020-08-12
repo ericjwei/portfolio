@@ -16,7 +16,7 @@ functions:
 
 custom:
   wsgi:
-    app: app.app
+    app: wsgi.app
     pythonBin: python3
     packRequirements: false
   pythonRequirements:

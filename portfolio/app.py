@@ -9,3 +9,6 @@ def home():
 def hello(name):
     return 'Hello' + name
 
+@app.route('/ClimateRisk')
+def ClimateRisk():
+    return "Climate Risk"
