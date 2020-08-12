@@ -137,3 +137,13 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# aws
+aws
+awscliv2.zip
+
+# Node
+node_modules
+
+# Serverless
+.serverless
