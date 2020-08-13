@@ -14,7 +14,7 @@ from urllib.parse import quote
 def create_dashboard(server):
     dash_app = dash.Dash(
         server = server,
-        routes_pathname_prefix='/ClimateRisk',
+        routes_pathname_prefix='/ClimateRisk/',
         external_stylesheets=[
             dbc.themes.BOOTSTRAP,
         ]
@@ -126,7 +126,7 @@ def init_callbacks(dash_app):
             (country + ", ") if country else "",
             (zip + ", ") if zip else ""])[:-2])
             base = "https://maps.googleapis.com/maps/api/geocode/json?address="
-            key = "&key=AIzaSyCTuoIYV1ihbdWZO7H6j7CEH7ObCInlusE"
+            key = ""
 
             # try:
             #     response = get(base + address + key)
@@ -145,5 +145,5 @@ def init_callbacks(dash_app):
                     
             #         return(address)
             location = {"lat": 47.62, "lng": -122.32}
-            
+            return address
         return "" 
