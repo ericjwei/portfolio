@@ -147,3 +147,10 @@ node_modules
 
 # Serverless
 .serverless
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Keys
+.keys
