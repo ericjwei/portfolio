@@ -154,3 +154,6 @@ node_modules
 
 # Keys
 .keys
+
+#EC2
+.ebignore

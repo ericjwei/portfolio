@@ -14,11 +14,13 @@ from urllib.parse import quote
 def create_dashboard(server):
     dash_app = dash.Dash(
         server = server,
-        routes_pathname_prefix='/ClimateRisk/',
+        routes_pathname_prefix='/climate_risk/',
         external_stylesheets=[
             dbc.themes.BOOTSTRAP,
         ]
     )
+    navbar = dbc.Navbar
+    dash_app.title = 'Climate Risk Dashboard'
 
     dash_app.layout = html.Div(children=[
         html.H1(children='Projected Climate Risk'),
