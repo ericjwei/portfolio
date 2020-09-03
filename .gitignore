@@ -155,6 +155,7 @@ node_modules
 # Keys
 .keys
 setup.txt
+settings.cfg
 
 #EC2
 .ebignore

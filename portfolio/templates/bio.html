@@ -3,14 +3,25 @@
 
 {% block content %}
   <div class="container">
-    <h1>About Me</h1>
-    <p>Hello, my name is Eric Wei. I grew up in Vancouver, CA and 
-      studied Informatics at the University of Washington. My main experiences
-      are with data analytics, data science, and software engineering.
+    <h1 style="padding-bottom: 10px;">About Me</h1>
+    <p style="font-size: 1.5em; padding-bottom: 15px;">Hello, my name is Eric Wei. 
+      I grew up in Vancouver, Canada and studied Informatics at the University of 
+      Washington. My main experiences are with data analytics, and software 
+      engineering. My aspiration is to use the power of data to make a meaningful
+      impact to the world.
     </p>
-    <p>
-      The Climate Risk Dashboard is a free alternative for predicting environmental 
-      property risks. It was inspired by a similar climate risk dashboard by GRESB.
+    <h2 style="padding-bottom: 10px;">Projects</h2>
+    <p style="font-size: 1.5em; padding-bottom: 20px">
+      The Climate Risk Dashboard is a predicted property risk assessment 
+      based on chronic environmental risks. It is inspired a GRESB's climate risk 
+      platform and observes the same environmental risks. The dashboard is built
+      on Dash Plotly with python and R for data analysis and processing. Source 
+      code can be found on <a href="https://github.com/ericjwei/portfolio/tree/master/portfolio/climate_risk_dash">
+      github</a>.
     </p>
+    <h2 style="padding-bottom: 10px;">Contact</h2>
+    <p style="font-size: 1.5em;">Email: <a href="mailto: eric@ericwei.info">eric@ericwei.info</a></p>
+    <p style="font-size: 1.5em;">LinkedIn: <a href="https://www.linkedin.com/in/ericjwei/">Eric Wei</a></p>
+    <p style="font-size: 1.5em;">Resume: <a href="{{ url_for('getResume') }}">Download PDF</a></p>
   </div>
 {% endblock %}

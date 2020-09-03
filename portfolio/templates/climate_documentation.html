@@ -3,6 +3,20 @@
 
 {% block content %}
   <div class="container">
-    <h1>Climate Risk Dashboard Documentation</h1>
+    <h1 style="padding-bottom: 10px;">Climate Risk Dashboard Documentation</h1>
+    <p style="font-size: 1.5em; padding-bottom: 15px;">The Climate Risk Dashboard is a predicted property risk assessment based 
+      on five chronic stress factors for two time frames (2050 and 2100). The 
+      data is modeled from the CMIP5 (Coupled Model Intercomparison Project 5) 
+      following RCP (Representative Concentration Pathway) 2.6, RCP 4.5, and RCP
+       8.5 from the IPCC (Intergovernmental Panel on Climate Change).
+    </p>
+    <h2 style="padding-bottom: 10px;">Available Risk Factors</h1>
+    <p style="font-size: 1.5em">Drought Stress: The drought stress score 
+      describes the change in the water balance (precipitation minus potential 
+      evapotranspiration). It is based on the Standardized 
+      Precipitation-Evapotranspiration Index (SPEI), which is modelled with the 
+      penman formula using daily information about temperature, precipitation, 
+      solar radiation, humidity, and surface pressure.
+    </p>
   </div>
 {% endblock %}

@@ -1,5 +1,6 @@
 from flask import current_app as app
-from flask import render_template
+from flask import render_template, send_from_directory
+from os import path as path
 
 @app.route('/')
 def index():
@@ -16,6 +17,12 @@ def hello(name):
 @app.route('/about')
 def about():
     return render_template('bio.html')
+
+@app.route('/resume', methods=['GET'])
+def getResume():
+  uploads = path.join(app.root_path, app.config['UPLOAD_FOLDER'])
+  return send_from_directory(directory=uploads, filename="Eric Wei_Resume.pdf", 
+                          as_attachment=True)
 
 # @app.route('/ClimateRisk')
 # def ClimateRisk():
