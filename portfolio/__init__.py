@@ -3,7 +3,7 @@ from flask_bootstrap import Bootstrap
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_envvar('PORTFOLIO_SETTINGS')
+    app.config.from_pyfile('config.py')
     bootstrap = Bootstrap(app)
 
     with app.app_context():
