@@ -1,24 +1,55 @@
 # install.packages("devtools", dependencies = TRUE, INSTALL_opts = '--no-lock')
-# install_github('sbegueria/SPEI')
 # install.packages("rjson")
 # library(devtools)
-library(SPEI)
-library(rjson)
+
+# if("devtools" %in% rownames(installed.packages()) == FALSE) {
+#     install.packages("devtools", dependencies = TRUE, INSTALL_opts = '--no-lock')
+# }
+library("devtools")
+if("SPEI" %in% rownames(installed.packages()) == FALSE) {
+    # devtools::install_github('sbegueria/SPEI', dependencies = TRUE, INSTALL_opts = '--no-lock')
+    install.packages('SPEI', dependencies = TRUE, INSTALL_opts = '--no-lock')
+}
+library("SPEI")
+if("rjson" %in% rownames(installed.packages()) == FALSE) {
+    install.packages("rjson", dependencies = TRUE, INSTALL_opts = '--no-lock')
+}
+library("rjson")
+
 args <- commandArgs(trailingOnly = TRUE)
 lat <- as.numeric(args[1])
-z <- as.numeric(args[2])
-name <- args[3]
-files <- c("26_2050", "26_2100", "45_2050", "45_2100", "85_2050", "85_2100")
-speiData <- data.frame(matrix(ncol = 6, nrow = 12))
-colnames(speiData) <- files
-rownames(speiData) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-for(f in files) {
-    data <- fromJSON(file = paste0("./data/output", f, ".json"))
-    pen <- penman(Tmin = data$tasmin, Tmax = data$tasmax, U2 = data$sfcWind, lat = lat, Rs = data$rsds, RH = data$hurs, P = data$ps, z = z)
-    p <- data$pr - pen
-    speiData[f] <- tail(spei(p, 12)$fitted, 12)
+name <- args[2]
+
+rcp <- c("rcp26", "rcp45", "rcp85")
+years <- c(2050, 2100)
+speiData <- data.frame(matrix(ncol = 7, nrow = 60))
+colnames(speiData) <- c("date", paste0("rcp26", "_", years), paste0("rcp45", "_", years), paste0("rcp85", "_", years))
+speiData["date"] <- format(seq(as.Date("2046-01-01"), as.Date("2050-12-01"), "month"), "%Y-%m")
+
+# Calculate potential evapotranspiration using penman for a combined time frame 
+# between 2046 - 2050 and 2096 - 2100
+for(r in rcp) {
+    for(year in years) {
+        data <- fromJSON(file = file.path("./portfolio/climate_risk_dash/data/temp", paste0(name, "_", r, "_", year, ".json")))
+        pen <- penman(Tmin = data$tasmin, Tmax = data$tasmax, U2 = data$sfcWind, lat = lat, Rs = data$rsds, RH = data$hurs, P = data$ps)
+        p <- data$pr - pen
+        speiData[paste0(r, "_", year)] <- spei(p, 12)$fitted
+    }
 }
-write.csv(speiData, file = paste0("./data/", name, "_speiData.csv"))
+write.csv(speiData, file = file.path("./portfolio/climate_risk_dash/data/temp", paste0(name, "_speiData.csv")))
+# speiData
+# p1
+# p2
+# t <- append(p1, p2)
+# for(f in files) {
+#     data <- fromJSON(file = file.path("./portfolio/climate_risk_dash/data/temp", paste0(name, f, ".json")))
+#     pen <- penman(Tmin = data$tasmin, Tmax = data$tasmax, U2 = data$sfcWind, lat = lat, Rs = data$rsds, RH = data$hurs, P = data$ps)
+#     p <- data$pr - pen
+#     # print(p)
+#     # speiData[f] <- tail(spei(p, 6)$fitted, 12)
+#     speiData[f] <- spei(p, 12)$fitted[[13:]]
+#     spei(p, scale = 1)
+# }
 
 # colnames(speiData) <- files
 # names(speiData)

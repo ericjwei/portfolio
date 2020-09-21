@@ -1,6 +1,7 @@
+# pylint: disable=no-name-in-module
 from netCDF4 import Dataset
-# from datetime import datetime, timedelta
 from numpy import argmin
+# from datetime import datetime, timedelta
 from json import dump
 # from csv import writer
 from typing import Any
@@ -9,8 +10,9 @@ from flask import Flask
 from os import path as path
 from os import mkdir as mkdir
 
-from speiData import SpeiDataset
- 
+# from portfolio.climate_risk_dash.speiData import SpeiDataset
+import speiData 
+
 # Get index for closest lat and lon using first dataset
 def getLatLon(latData: Any, lonData: Any, lat: float, lon: float) -> (int, int):
     i_lat = abs(latData.variables['lat'][:] - lat).argmin()
@@ -41,7 +43,7 @@ def conversion(dataMonthly: dict) -> None:
     dataMonthly['tas'] = [i - 273.15 for i in dataMonthly['tas']]
     dataMonthly['tasmax'] = [i - 273.15 for i in dataMonthly['tasmax']]
     dataMonthly['tasmin'] = [i - 273.15 for i in dataMonthly['tasmin']]
-    dataMonthly['pr'] = [i * 2.628e+6 for i in dataMonthly['pr']]
+    dataMonthly['pr'] = [i * 2.628333e+6 for i in dataMonthly['pr']]
     dataMonthly['rsds'] = [i * 0.0864 for i in dataMonthly['rsds']]
     dataMonthly['ps'] = [i / 1000 for i in dataMonthly['ps']]
 
@@ -60,21 +62,29 @@ def getSPEI(name: str, lat: float, lon: float, z) -> float:
     currentData = Dataset(path.join(wd, "data/spei12.nc"), mode = 'r')
     spei = currentSpei(currentData, lat, lon)
     currentData.close()
-    speiData = SpeiDataset()
-    speiData.getData()
+    dataset = speiData.SpeiDataset()
+    dataset.getData()
 
     # Get index for closest lat and lon 
-    i_lat, i_lon = getLatLon(speiData.lat, speiData.lon, lat, lon % 360)
+    i_lat, i_lon = getLatLon(dataset.lat, dataset.lon, lat, lon % 360)
 
     # Filter for POI
-    data = {
-        "26_2050": CMIP5monthly(speiData.data26_2050, 0, 60, i_lat, i_lon),
-        "26_2100": CMIP5monthly(speiData.data26_2100, 0, 60, i_lat, i_lon),
-        "45_2050": CMIP5monthly(speiData.data45_2050, 0, 60, i_lat, i_lon),
-        "45_2100": CMIP5monthly(speiData.data45_2100, 0, 60, i_lat, i_lon), 
-        "85_2050": CMIP5monthly(speiData.data85_2050, 0, 60, i_lat, i_lon),
-        "85_2100": CMIP5monthly(speiData.data85_2100, 0, 60, i_lat, i_lon)
-    }
+    data = {}
+    for d in dataset.data:
+        data[d] = CMIP5monthly(dataset.data[d], 0, 60, i_lat, i_lon)
+
+    # # Get index for closest lat and lon 
+    # i_lat, i_lon = getLatLon(speiData.lat, speiData.lon, lat, lon % 360)
+
+    # # Filter for POI
+    # data = {
+    #     "26_2050": CMIP5monthly(speiData.data26_2050, 0, 60, i_lat, i_lon),
+    #     "26_2100": CMIP5monthly(speiData.data26_2100, 0, 60, i_lat, i_lon),
+    #     "45_2050": CMIP5monthly(speiData.data45_2050, 0, 60, i_lat, i_lon),
+    #     "45_2100": CMIP5monthly(speiData.data45_2100, 0, 60, i_lat, i_lon), 
+    #     "85_2050": CMIP5monthly(speiData.data85_2050, 0, 60, i_lat, i_lon),
+    #     "85_2100": CMIP5monthly(speiData.data85_2100, 0, 60, i_lat, i_lon)
+    # }
     
     # Convert units
     for d in data:
@@ -86,25 +96,24 @@ def getSPEI(name: str, lat: float, lon: float, z) -> float:
 
     # Output data to json for spei.r calculation
     for d in data:
-        with open(path.join(wd, 'data/temp/', d) + '.json', 'w')as fp:
+        with open(path.join(wd, 'data/temp/') + name + '_' + d + '.json', 'w')as fp:
             dump(data[d], fp)
-    speiData.closeData()
-
+    dataset.closeData()
+    
     # # Run r script
-    # cmd = ["/usr/bin/Rscript", "--vanilla", "./spei.r"] + [str(lat), str(z), name]
-    # rOutput = call(cmd)
-    # if (rOutput != 0):
-    #     print("error in r script")
-
+    cmd = ["/usr/bin/Rscript", "--vanilla", path.join(wd, "spei.r")] + [str(lat), name]
+    rOutput = call(cmd)
+    if (rOutput != 0):
+        print("error in r script")
     return spei
 
-# Variables for POI location
 lat = 28.025880
 lon = -81.732880
 z = 10
 name = "Winter Haven Hotel"
-getSPEI(name, lat, lon, z)
 
+currentSpei = getSPEI(name, lat, lon, z)
+print(currentSpei)
 
 
 

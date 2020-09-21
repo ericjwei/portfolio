@@ -11,6 +11,9 @@ from requests import get
 from requests.exceptions import HTTPError
 from urllib.parse import quote
 
+# from portfolio.climate_risk_dash.spei import getSPEI
+import getSPEI
+
 def create_dashboard(server):
   dash_app = dash.Dash(
     server = server,
@@ -187,6 +190,14 @@ def init_callbacks(dash_app):
       (zip + ", ") if zip else ""])[:-2])
       base = "https://maps.googleapis.com/maps/api/geocode/json?address="
       key = ""
+
+      lat = 28.025880
+      lon = -81.732880
+      z = 10
+      name = "Winter Haven Hotel"
+
+      currentSpei = getSPEI(name, lat, lon, z)
+      print(currentSpei)
 
       # try:
       #     response = get(base + address + key)

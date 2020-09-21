@@ -160,4 +160,8 @@ settings.cfg
 #EC2
 .ebignore
 
-data
+# Data
+rcp26*
+rcp45*
+rcp85*
+temp
