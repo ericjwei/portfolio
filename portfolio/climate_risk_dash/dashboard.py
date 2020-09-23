@@ -245,7 +245,7 @@ def init_callbacks(dash_app):
       raise dash.exceptions.PreventUpdate
     data = read_csv(f)
     fig2050 = go.Figure(data = [
-        go.Scatter(y=data[rcp + "_2050"][13:], x=data["date"][13:], mode='lines', fill='tozeroy')                    
+        go.Scatter(y=data[rcp + "_2050"][12:], x=data["date"][13:], mode='lines', fill='tozeroy')                    
     ])
     fig2050.update_yaxes(tickvals=[-2.33, -1.65, -1.28, -0.84, 0, 0.84, 1.28, 1.65, 2.33], 
                     range=[-3, 3])
@@ -255,7 +255,7 @@ def init_callbacks(dash_app):
                     yaxis_title="SPEI")
 
     fig2100 = go.Figure(data = [
-        go.Scatter(y=data[rcp + "_2100"][13:], x=data["date"][13:], mode='lines', fill='tozeroy')                    
+        go.Scatter(y=data[rcp + "_2100"][12:], x=data["date"][13:], mode='lines', fill='tozeroy')                    
     ])
     fig2100.update_yaxes(tickvals=[-2.33, -1.65, -1.28, -0.84, 0, 0.84, 1.28, 1.65, 2.33], 
                     range=[-3, 3])

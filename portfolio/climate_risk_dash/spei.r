@@ -7,7 +7,6 @@
 # }
 library("devtools")
 if("SPEI" %in% rownames(installed.packages()) == FALSE) {
-    # devtools::install_github('sbegueria/SPEI', dependencies = TRUE, INSTALL_opts = '--no-lock')
     install.packages('SPEI', dependencies = TRUE, INSTALL_opts = '--no-lock')
 }
 library("SPEI")
