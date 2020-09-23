@@ -7,11 +7,9 @@ from json import dump
 from typing import Any
 from subprocess import call
 from flask import Flask
-from os import path as path
-from os import mkdir as mkdir
+from os import path, mkdir
 
-# from portfolio.climate_risk_dash.speiData import SpeiDataset
-import speiData 
+from portfolio.climate_risk_dash.speiData import SpeiDataset
 
 # Get index for closest lat and lon using first dataset
 def getLatLon(latData: Any, lonData: Any, lat: float, lon: float) -> (int, int):
@@ -40,7 +38,7 @@ def CMIP5monthly(data: dict, i_dateStart: int, i_dateEnd: int,
 
 # Change units to conform with SPEI formula
 def conversion(dataMonthly: dict) -> None:
-    dataMonthly['tas'] = [i - 273.15 for i in dataMonthly['tas']]
+    # dataMonthly['tas'] = [i - 273.15 for i in dataMonthly['tas']]
     dataMonthly['tasmax'] = [i - 273.15 for i in dataMonthly['tasmax']]
     dataMonthly['tasmin'] = [i - 273.15 for i in dataMonthly['tasmin']]
     dataMonthly['pr'] = [i * 2.628333e+6 for i in dataMonthly['pr']]
@@ -57,12 +55,26 @@ def currentSpei(currentData: Any, lat: float, lon: float) -> float:
 # name: string of address name
 # lat: float of latitude in decimal form
 # lon: float of longitude in decimal form
-def getSPEI(name: str, lat: float, lon: float, z) -> float:
+def getSPEI(name: str, lat: float, lon: float) -> float:
     wd = path.dirname(__file__)
     currentData = Dataset(path.join(wd, "data/spei12.nc"), mode = 'r')
     spei = currentSpei(currentData, lat, lon)
     currentData.close()
-    dataset = speiData.SpeiDataset()
+
+    # Check if report already exists
+    # If report exists, return spei
+    # Else continue to make report
+    if not path.isdir(path.join(wd, "report")):
+        mkdir(path.join(wd, "report"))
+    if path.exists(path.join(wd, "report", (name + "_SpeiData.csv"))):
+        return spei
+
+    # Check temp folder exists
+    if not path.isdir(path.join(wd, "data/temp")):
+        mkdir(path.join(wd, "data/temp"))
+
+    # Get data
+    dataset = SpeiDataset()
     dataset.getData()
 
     # Get index for closest lat and lon 
@@ -72,27 +84,10 @@ def getSPEI(name: str, lat: float, lon: float, z) -> float:
     data = {}
     for d in dataset.data:
         data[d] = CMIP5monthly(dataset.data[d], 0, 60, i_lat, i_lon)
-
-    # # Get index for closest lat and lon 
-    # i_lat, i_lon = getLatLon(speiData.lat, speiData.lon, lat, lon % 360)
-
-    # # Filter for POI
-    # data = {
-    #     "26_2050": CMIP5monthly(speiData.data26_2050, 0, 60, i_lat, i_lon),
-    #     "26_2100": CMIP5monthly(speiData.data26_2100, 0, 60, i_lat, i_lon),
-    #     "45_2050": CMIP5monthly(speiData.data45_2050, 0, 60, i_lat, i_lon),
-    #     "45_2100": CMIP5monthly(speiData.data45_2100, 0, 60, i_lat, i_lon), 
-    #     "85_2050": CMIP5monthly(speiData.data85_2050, 0, 60, i_lat, i_lon),
-    #     "85_2100": CMIP5monthly(speiData.data85_2100, 0, 60, i_lat, i_lon)
-    # }
     
     # Convert units
     for d in data:
         conversion(data[d])
-
-    # Check temp folder exists
-    if not path.isdir(path.join(wd, "data/temp")):
-        mkdir(path.join(wd, "data/temp"))
 
     # Output data to json for spei.r calculation
     for d in data:
@@ -101,19 +96,18 @@ def getSPEI(name: str, lat: float, lon: float, z) -> float:
     dataset.closeData()
     
     # # Run r script
-    cmd = ["/usr/bin/Rscript", "--vanilla", path.join(wd, "spei.r")] + [str(lat), name]
+    cmd = ["/usr/bin/Rscript", "--vanilla", path.join(wd, "spei.r")] + [name, str(lat)]
     rOutput = call(cmd)
     if (rOutput != 0):
         print("error in r script")
     return spei
 
-lat = 28.025880
-lon = -81.732880
-z = 10
-name = "Winter Haven Hotel"
+# lat = 28.025880
+# lon = -81.732880
+# name = "Winter Haven Hotel"
 
-currentSpei = getSPEI(name, lat, lon, z)
-print(currentSpei)
+# currentSpei = getSPEI(name, lat, lon)
+# print(currentSpei)
 
 
 

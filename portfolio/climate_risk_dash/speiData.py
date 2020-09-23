@@ -5,7 +5,7 @@ import os
 # netCDF4 data of CMIP5 projections for rcp 2.6, rcp 4.5, and rcp 8.5. 
 # Data source: https://cds.climate.copernicus.eu/cdsapp#!dataset/projections-cmip5-monthly-single-levels?tab=overview
 # Variables selected for SPEI calculations
-    # 2m temperature (tas)
+    # 2m temperature (tas) Does not use for penman
     # Maximum 2m temperature in the last 24 hours (tasmax)
     # Minimum 2m temperature in the last 24 hours (tasmin)
     # Surface pressure (pr)
@@ -32,11 +32,11 @@ class SpeiDataset:
         self.lat = Dataset(os.path.join(wd, "data/lat.nc"), mode = 'r')
         self.lon = Dataset(os.path.join(wd, "data/lon.nc"), mode = 'r')
 
-        # models = ["rcp26", "rcp45", "rcp85"]
-        models = ["rcp26"]
+        models = ["rcp26", "rcp45", "rcp85"]
+        # models = ["rcp26"]
         # years = ["204101-204512", "204601-205012", "209101-209512", "209601-210012"]
         years = ["204601-205012", "209601-210012"]
-        variables = ["tas", "tasmax", "tasmin", "pr", "sfcWind", "rsds", "hurs", "ps"]
+        variables = ["tasmax", "tasmin", "pr", "sfcWind", "rsds", "hurs", "ps"]
 
         for rcp in models:
             for year in years:

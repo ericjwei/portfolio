@@ -17,8 +17,8 @@ if("rjson" %in% rownames(installed.packages()) == FALSE) {
 library("rjson")
 
 args <- commandArgs(trailingOnly = TRUE)
-lat <- as.numeric(args[1])
-name <- args[2]
+name <- args[1]
+lat <- as.numeric(args[2])
 
 rcp <- c("rcp26", "rcp45", "rcp85")
 years <- c(2050, 2100)
@@ -36,7 +36,7 @@ for(r in rcp) {
         speiData[paste0(r, "_", year)] <- spei(p, 12)$fitted
     }
 }
-write.csv(speiData, file = file.path("./portfolio/climate_risk_dash/data/temp", paste0(name, "_speiData.csv")))
+write.csv(speiData, file = file.path("./portfolio/climate_risk_dash/report", paste0(name, "_speiData.csv")))
 # speiData
 # p1
 # p2
