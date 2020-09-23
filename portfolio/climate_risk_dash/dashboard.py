@@ -10,7 +10,7 @@ import json
 from requests import get
 from requests.exceptions import HTTPError
 from urllib.parse import quote
-from os import path
+from os import path, getenv
 
 from portfolio.climate_risk_dash.spei import getSPEI, currentSpei
 
@@ -165,8 +165,6 @@ def create_dashboard(server):
       [
         dbc.Col(html.Div(id="speiGraph2050"), md=6, lg=6),
         dbc.Col(html.Div(id="speiGraph2100"), md=6, lg=6),    
-        # dbc.Col(dcc.Graph(id='RCP-Graph2050'), md=6, lg=6),
-        # dbc.Col(dcc.Graph(id='RCP-Graph2100'), md=6, lg=6),
       ],
       no_gutters=True,
     ),
@@ -208,7 +206,8 @@ def init_callbacks(dash_app):
       (country + ", ") if country else "",
       (zip + ", ") if zip else ""])[:-2])
       base = "https://maps.googleapis.com/maps/api/geocode/json?address="
-      key = ("&key=" + "")
+      GEO_KEY = getenv('GEO_KEY')
+      key = ("&key=" + GEO_KEY)
 
       try:
           response = get(base + address + key)
@@ -233,27 +232,7 @@ def init_callbacks(dash_app):
                         'Longitude: {}'.format(latlng["lng"]), currentSPEI, {'display': 'block'}]
     return["Search a location", None, None, None, {'display': 'none'}]
 
-  # @dash_app.callback(
-  #   Output('currentSPEI', 'children'),
-  #   [Input('location', 'value'),
-  #   Input('latval', 'value'),
-  #   Input('lngval', 'value')])
-  # def getData(location: str, latval: float, lngval: float) -> str:
-  #   print(location)
-  #   if(location is None or latval is None or lngval is None):
-  #     return None
-
-  #   # lat = 28.025880
-  #     # lon = -81.732880
-  #     # name = "Winter Haven Hotel"
-
-  #     # location = {"lat": 47.62, "lng": -122.32}
-  #   currentSpei = getSPEI(location.replace(",", ""), latval, lngval)
-  #   return('Current SPEI-12 is: {}'.format(currentSpei)) 
-
   @dash_app.callback(
-    # [Output('RCP-Graph2050', 'figure'), 
-    # Output('RCP-Graph2100', 'figure')],
     [Output('speiGraph2050', 'children'),
     Output('speiGraph2100', 'children')],
     [Input('location', 'children'), 
