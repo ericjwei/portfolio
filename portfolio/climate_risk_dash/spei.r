@@ -5,7 +5,7 @@
 # if("devtools" %in% rownames(installed.packages()) == FALSE) {
 #     install.packages("devtools", dependencies = TRUE, INSTALL_opts = '--no-lock')
 # }
-library("devtools")
+# library("devtools")
 if("SPEI" %in% rownames(installed.packages()) == FALSE) {
     install.packages('SPEI', dependencies = TRUE, INSTALL_opts = '--no-lock')
 }

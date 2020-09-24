@@ -208,7 +208,6 @@ def init_callbacks(dash_app):
       base = "https://maps.googleapis.com/maps/api/geocode/json?address="
       GEO_KEY = getenv('GEO_KEY')
       key = ("&key=" + GEO_KEY)
-
       try:
           response = get(base + address + key)
           response.raise_for_status()
