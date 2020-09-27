@@ -6,13 +6,13 @@
 #     install.packages("devtools", dependencies = TRUE, INSTALL_opts = '--no-lock')
 # }
 # library("devtools")
-if("SPEI" %in% rownames(installed.packages()) == FALSE) {
-    install.packages('SPEI', dependencies = TRUE, INSTALL_opts = '--no-lock')
-}
+#if("SPEI" %in% rownames(installed.packages()) == FALSE) {
+#    install.packages('SPEI', dependencies = TRUE, INSTALL_opts = '--no-lock')
+#}
 library("SPEI")
-if("rjson" %in% rownames(installed.packages()) == FALSE) {
-    install.packages("rjson", dependencies = TRUE, INSTALL_opts = '--no-lock')
-}
+#if("rjson" %in% rownames(installed.packages()) == FALSE) {
+#    install.packages("rjson", dependencies = TRUE, INSTALL_opts = '--no-lock')
+#}
 library("rjson")
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -33,6 +33,7 @@ for(r in rcp) {
         pen <- penman(Tmin = data$tasmin, Tmax = data$tasmax, U2 = data$sfcWind, lat = lat, Rs = data$rsds, RH = data$hurs, P = data$ps)
         p <- data$pr - pen
         speiData[paste0(r, "_", year)] <- spei(p, 12)$fitted
+        print(year)
     }
 }
 write.csv(speiData, file = file.path("./portfolio/climate_risk_dash/report", paste0(name, "_speiData.csv")))
