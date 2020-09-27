@@ -11,8 +11,12 @@ from requests import get
 from requests.exceptions import HTTPError
 from urllib.parse import quote
 from os import path, getenv
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 from portfolio.climate_risk_dash.spei import getSPEI, currentSpei
+
+DEBUG = True
 
 def create_dashboard(server):
   dash_app = dash.Dash(
@@ -136,12 +140,14 @@ def create_dashboard(server):
         html.H3(id="location", className="text-center"),
         html.P(id="lng", className="lead text-center"),
         html.P(id="lat", className="lead text-center"),
+        html.H3(id="curMonth", className="text-center"),
         html.P(id="curSpei", className="lead text-center"),
       ]
     ),
 
     dbc.FormGroup(
       [
+        html.H3("Predicted Risk", className="text-center"),
         html.H4("Representative Concentration Pathway (RCP)", className="text-center"),
         dbc.RadioItems(
           options=[
@@ -190,6 +196,7 @@ def init_callbacks(dash_app):
     [Output('location', 'children'),
     Output('lat', 'children'),
     Output('lng', 'children'),
+    Output('curMonth', 'children'),
     Output('curSpei', 'children'),
     Output('rcpForm', 'style')],
     [Input('submit-address', 'n_clicks')],
@@ -208,6 +215,16 @@ def init_callbacks(dash_app):
       base = "https://maps.googleapis.com/maps/api/geocode/json?address="
       GEO_KEY = getenv('GEO_KEY')
       key = ("&key=" + GEO_KEY)
+      
+      if(DEBUG):
+        location = "412 Broadway Seattle WA 98122 USA"
+        currentSPEI = getSPEI(location, 47.6058925, -122.3203337)
+        today = datetime.today()
+        pastMonth = today - relativedelta(months=1)
+        return[location, 'Latitude: {}'.format(0), 'Longitude: {}'.format(0), 
+                        'Risk assessment for {}'.format(pastMonth.strftime("%B")), 'Spei-12: {}'.format(currentSPEI),
+                        {'display': 'block'}]
+
       try:
           response = get(base + address + key)
           response.raise_for_status()
@@ -227,10 +244,13 @@ def init_callbacks(dash_app):
               except Exception as err:
                 return[dash.no_update, dash.no_update, dash.no_update, "Error calculating SPEI", dash.no_update]
               else:
-                return[location, 'Latitude: {}'.format(latlng["lat"]), 
-                        'Longitude: {}'.format(latlng["lng"]), currentSPEI, {'display': 'block'}]
-    return["Search a location", None, None, None, {'display': 'none'}]
-
+                today = datetime.today()
+                pastMonth = today - relativedelta(months=1)
+                return[location, 'Latitude: {}'.format(latlng["lat"]), 'Longitude: {}'.format(latlng["lng"]), 
+                                'Risk assessment for {}'.format(pastMonth.strftime("%B")), 'Spei-12: {}'.format(currentSPEI), 
+                                {'display': 'block'}]
+    return["Search a location", None, None, None, None, {'display': 'none'}]
+    
   @dash_app.callback(
     [Output('speiGraph2050', 'children'),
     Output('speiGraph2100', 'children')],
