@@ -60,7 +60,6 @@ def getSPEI(name: str, lat: float, lon: float) -> float:
     currentData = Dataset(path.join(wd, "data/spei12.nc"), mode = 'r')
     spei = currentSpei(currentData, lat, lon)
     currentData.close()
-
     # Check if report already exists
     # If report exists, return spei
     # Else continue to make report
