@@ -2,6 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import plotly.express as px
 import plotly.graph_objects as go
@@ -16,7 +17,7 @@ from dateutil.relativedelta import relativedelta
 
 from portfolio.climate_risk_dash.spei import getSPEI, currentSpei
 
-DEBUG = True
+DEBUG = False
 
 def create_dashboard(server):
   dash_app = dash.Dash(
@@ -137,11 +138,13 @@ def create_dashboard(server):
 
     dbc.Jumbotron(
       [
-        html.H3(id="location", className="text-center"),
+        html.H3("Search a location.", id="location", className="text-center"),
         html.P(id="lng", className="lead text-center"),
         html.P(id="lat", className="lead text-center"),
         html.H3(id="curMonth", className="text-center"),
         html.P(id="curSpei", className="lead text-center"),
+        html.P(id="err", className="lead text-center"),
+        html.P(id="speiErr", className="lead text-center"),
       ]
     ),
 
@@ -198,7 +201,7 @@ def init_callbacks(dash_app):
     Output('lng', 'children'),
     Output('curMonth', 'children'),
     Output('curSpei', 'children'),
-    Output('rcpForm', 'style')],
+    Output('err', 'children')],
     [Input('submit-address', 'n_clicks')],
     [State('address', 'value'),
     State('city', 'value'),
@@ -218,12 +221,13 @@ def init_callbacks(dash_app):
       
       if(DEBUG):
         location = "412 Broadway Seattle WA 98122 USA"
-        currentSPEI = getSPEI(location, 47.6058925, -122.3203337)
+        # currentSPEI = getSPEI(location, 47.6058925, -122.3203337)
+        currentSPEI = 0
         today = datetime.today()
         pastMonth = today - relativedelta(months=1)
         return[location, 'Latitude: {}'.format(0), 'Longitude: {}'.format(0), 
                         'Risk assessment for {}'.format(pastMonth.strftime("%B")), 'Spei-12: {}'.format(currentSPEI),
-                        {'display': 'block'}]
+                        None]
 
       try:
           response = get(base + address + key)
@@ -235,34 +239,43 @@ def init_callbacks(dash_app):
           raise SystemError(err)
       else:
           if (result["status"] == "ZERO_RESULTS"):
-              return("Address not found.")
+              return(None, None, None, None, None, "Address not found.")
           else:
               location = result["results"][0]["formatted_address"]
               latlng = result["results"][0]["geometry"]["location"]
               try:
                 currentSPEI = getSPEI(location.replace(",", ""), latlng["lat"], latlng["lng"])
               except Exception as err:
-                return[dash.no_update, dash.no_update, dash.no_update, "Error calculating SPEI", dash.no_update]
+                return[None, None, None, None, None, "Error calculating SPEI"]
               else:
                 today = datetime.today()
                 pastMonth = today - relativedelta(months=1)
                 return[location, 'Latitude: {}'.format(latlng["lat"]), 'Longitude: {}'.format(latlng["lng"]), 
                                 'Risk assessment for {}'.format(pastMonth.strftime("%B")), 'Spei-12: {}'.format(currentSPEI), 
-                                {'display': 'block'}]
-    return["Search a location", None, None, None, None, {'display': 'none'}]
+                                None]
+    else:
+      raise PreventUpdate
     
   @dash_app.callback(
     [Output('speiGraph2050', 'children'),
-    Output('speiGraph2100', 'children')],
+    Output('speiGraph2100', 'children'),
+    Output('rcpForm', 'style'),
+    Output('speiErr', 'children')],
     [Input('location', 'children'), 
     Input('rcp-radio', 'value')], prevent_initial_call=True)
-  def update_figure2050(location: str, rcp: str):
+  def update_spei_figure(location: str, rcp: str):
+    if location is None:
+      raise PreventUpdate
     wd = path.dirname(__file__)
     location = location.replace(",", "")
     f = path.join(wd, "report", (location + "_speiData.csv"))
-    if not path.isfile(f):
-      raise dash.exceptions.PreventUpdate
-    data = read_csv(f)
+ 
+    try:
+      data = read_csv(f)
+    except IOError:
+      # return(None, None, "Error loading SPEI graph, please try again later.")
+      return(None, None, {'display': 'none'}, "Error loading SPEI graph, please try again later.")
+
     fig2050 = go.Figure(data = [
         go.Scatter(y=data[rcp + "_2050"][12:], x=data["date"][13:], mode='lines', fill='tozeroy')                    
     ])
@@ -283,4 +296,5 @@ def init_callbacks(dash_app):
                     xaxis_title="Date",
                     yaxis_title="SPEI")
     
-    return[dcc.Graph(id='RCP-Graph2050', figure=fig2050), dcc.Graph(id='RCP-Graph2100', figure=fig2100)]  
+    return[dcc.Graph(id='RCP-Graph2050', figure=fig2050), dcc.Graph(id='RCP-Graph2100', figure=fig2100),
+                      {'display': 'block'}, None]  
