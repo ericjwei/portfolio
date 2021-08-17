@@ -22,3 +22,4 @@
     This project is an interactive dashboard using Dash and plotly, written in python.
     It allows the user to input any address (processed by a geolocation api) and customize the scenario, and time phrame of interest.
     Graphs and a report tailored to the chosen variables is then outputed to the user. 
+    <a href="https://github.com/ericjwei/portfolio/tree/master/portfolio/climate_risk_dash">Detailed code of climate dashboard</a>
